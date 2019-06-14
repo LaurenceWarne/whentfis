@@ -1,45 +1,62 @@
 #!/usr/bin/env python3
 
 import argparse
+import calendar
 import datetime
 import sys
+from dateutil.parser import parse
 
 
 def main():
-    description = """Answer questions from a text file using the number
-                     keys. Questions and their answers should be on the
-                     same line and split by a common delimeter. The
-                     answer choices displayed by the program for a given
-                     question are sampled randomly from other questions
-                     in the input file (in addition to the correct
-                     answer)."""
+    # Set up argparse
+    description = """Transforms dates in the form dd/mm/yyyy or mm/dd/yyy to
+                     a human readable format."""
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("date", help="Date you want to rationalise")
+    args = parser.parse_args
 
-    days = [
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-        "Sunday",
-    ]
-    date = datetime.date.today()
+    # Attempt to parse date
+    try:
+        input_date = parse(args["date"])
+    except ValueError:
+        print("Cannot guess date format for: " + args["date"])
+        return
+    today = datetime.date.today()
+    get_rational_date(input_date, today)
 
-    current = datetime.date.today()
-    current = current.replace(
-        current.year, current.month, current.day - current.weekday()
-    )
-    difference = (datetime_obj - current).days
-    week, day = divmod(difference, 7)
-    if week == 1:
-        print("Next {day}".format(week_num=week, day=days[day]))
+
+def get_rational_date(input_date, date_from):
+    start_of_week = input_date - datetime.timedelta(days=input_date.weekday())
+    difference = (input_date - date_from).days
+    # Rounds down, even for negatives
+    week = difference // 7
+    day_of_week = calendar.day_name[input_date.weekday()]
+
+    # Today
+    if input_date == date_from:
+        print("That's today!")
+    # A day later this week
     elif week == 0:
-        print("This {day}".format(week_num=week, day=days[day]))
+        print("This {day}".format(week_num=week, day=day_of_week))
+    # A day earlier this week
+    elif week == -1 and input_date.weekday() < date_from.weekday():
+        print("It was this {day}".format(week_num=week, day=day_of_week))
+    # Some day next week
+    elif week == 1:
+        print("Next {day}".format(week_num=week, day=day_of_week))
+    # A day last week
+    elif week == -1 and input_date.weekday() > date_from.weekday():
+        print("It was this {day}".format(week_num=week, day=day_of_week))
+    # A day further forward than next week
+    elif week > 1:
+        print(
+            "{week_num} weeks {day}"
+            .format(week_num=week, day=day_of_week)
+        )
+    # A day further behind than last week
     else:
-        print("{week_num} weeks {day}".format(week_num=week, day=days[day]))
-
+        print("Weeks ago")
+        
 
 if __name__ == "__main__":
     main()
