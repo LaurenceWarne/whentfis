@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+
+import argparse
+import datetime
+import sys
+
+
+def main():
+    description = """Answer questions from a text file using the number
+                     keys. Questions and their answers should be on the
+                     same line and split by a common delimeter. The
+                     answer choices displayed by the program for a given
+                     question are sampled randomly from other questions
+                     in the input file (in addition to the correct
+                     answer)."""
+    parser = argparse.ArgumentParser(description=description)
+    parser.add_argument("date", help="Date you want to rationalise")
+
+    days = [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+    ]
+    date = datetime.date.today()
+
+    current = datetime.date.today()
+    current = current.replace(
+        current.year, current.month, current.day - current.weekday()
+    )
+    difference = (datetime_obj - current).days
+    week, day = divmod(difference, 7)
+    if week == 1:
+        print("Next {day}".format(week_num=week, day=days[day]))
+    elif week == 0:
+        print("This {day}".format(week_num=week, day=days[day]))
+    else:
+        print("{week_num} weeks {day}".format(week_num=week, day=days[day]))
+
+
+if __name__ == "__main__":
+    main()
