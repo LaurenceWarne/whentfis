@@ -22,24 +22,25 @@ def main():
         print("Cannot guess date format for: " + args["date"])
         return
     today = datetime.date.today()
-    get_rational_date(input_date, today)
+    print(get_rational_date(input_date, today))
 
 
 def get_rational_date(input_date, date_from):
     start_of_week = input_date - datetime.timedelta(days=input_date.weekday())
-    difference = (input_date - date_from).days
+    day_difference = (input_date - start_of_week).days
     # Rounds down, even for negatives
-    week = difference // 7
+    week = day_difference // 7
+    # calendar module's weeks start on monday
     day_of_week = calendar.day_name[input_date.weekday()]
 
     # Today
     if input_date == date_from:
         print("That's today!")
     # A day later this week
-    elif week == 0:
+    elif week == 0 and input_date > date_from:
         print("This {day}".format(week_num=week, day=day_of_week))
     # A day earlier this week
-    elif week == -1 and input_date.weekday() < date_from.weekday():
+    elif week == 0 and input_date < date_from:
         print("It was this {day}".format(week_num=week, day=day_of_week))
     # Some day next week
     elif week == 1:
@@ -50,12 +51,15 @@ def get_rational_date(input_date, date_from):
     # A day further forward than next week
     elif week > 1:
         print(
-            "{week_num} weeks {day}"
-            .format(week_num=week, day=day_of_week)
+            "{weeks} weeks {day}"
+            .format(weeks=week, day=day_of_week)
         )
     # A day further behind than last week
     else:
-        print("Weeks ago")
+        print(
+            "{weeks} Weeks ago {day}"
+            .format(weeks=abs(weeks), day=day_of_week)
+        )
         
 
 if __name__ == "__main__":
