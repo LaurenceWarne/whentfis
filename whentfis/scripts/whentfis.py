@@ -27,10 +27,10 @@ def main():
         print("Cannot guess date format for: " + args.date)
         return
     today = datetime.date.today()
-    print(get_rational_date(input_date, today))
+    print(get_rational_date(today, input_date))
 
 
-def get_rational_date(input_date, date_from):
+def get_rational_date(date_from, input_date):
     start_of_week = date_from - datetime.timedelta(days=input_date.weekday())
     day_difference = (input_date - start_of_week).days
     # Rounds down, even for negatives
@@ -41,6 +41,12 @@ def get_rational_date(input_date, date_from):
     # Today
     if input_date == date_from:
         return "That's today!"
+    # Tomorrow
+    elif input_date + datetime.timedelta(days=-1) == date_from:
+        return "That's tommorrow!"
+    # Yesterday
+    elif input_date + datetime.timedelta(days=1) == date_from:
+        return "That was yesterday!"
     # A day later this week
     elif week == 0 and input_date > date_from:
         return "This {day}".format(week_num=week, day=day_of_week)

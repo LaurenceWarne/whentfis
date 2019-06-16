@@ -8,6 +8,7 @@ setup(
     name="whentfis",
     packages=find_packages(),
     include_package_data=True,
+    test_suite="whentfis.tests",
     python_requires='>=3',
     url="",
     entry_points={
