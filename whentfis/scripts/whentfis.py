@@ -3,8 +3,72 @@
 import argparse
 import calendar
 import datetime
-import sys
+
 from dateutil.parser import parse
+
+
+class DayRelationEvaluator:
+
+    def __init__(self, base_date):
+        self.base_date = base_date
+        # Default format strings
+        self.same_day_fstring = "That's today!"
+        self.day_after_fstring = "That's tomorrow!"
+        self.day_before_fstring = "That was yeserday!"
+        self.later_this_week_fstring = "This {}"
+        self.earlier_this_week_fstring = "It was this {}"
+        self.day_last_week_fstring = "It was last {}"
+        self.day_next_week_fstring = "Next {}"
+        self.generic_future_week_fstring = "{} weeks {}"
+        self.generic_past_week_fstring = "{} weeks ago {}"
+
+    def relation_with(self, date):
+        # A little validation
+        if not isinstance(date, datetime.date):
+            return ValueError(
+                "Expected instance of datetime.date but got: " + type(date)
+            )
+        days_into_week = datetime.timedelta(days=self.base_date.weekday())
+        week_start = self.base_date - days_into_week
+        day_difference = (date - week_start).days
+        # Rounds down, even for negatives
+        week = day_difference // 7
+        # calendar module's weeks start on monday
+        day_of_week = calendar.day_name[date.weekday()]
+
+        # Today
+        if date == self.base_date:
+            return self.same_day_fstring
+        # Tomorrow
+        elif date + datetime.timedelta(days=-1) == self.base_date:
+            return self.day_after_fstring
+        # Yesterday
+        elif date + datetime.timedelta(days=1) == self.base_date:
+            return self.day_before_fstring
+        # A day later this week
+        elif week == 0 and date > self.base_date:
+            return self.later_this_week_fstring.format(day_of_week)
+        # A day earlier this week
+        elif week == 0 and date < self.base_date:
+            return self.earlier_this_week_fstring.format(day_of_week)
+        # Some day next week
+        elif week == 1:
+            return self.day_next_week_fstring.format(day_of_week)
+        # A day last week
+        elif week == -1 and date.weekday() > self.base_date.weekday():
+            return self.day_last_week_fstring.format(day_of_week)
+        # A day further forward than next week
+        elif week > 1:
+            return self.generic_future_week_fstring.format(
+                week,
+                day_of_week
+            )
+        # A day further behind than last week
+        else:
+            return self.generic_past_week_fstring.format(
+                abs(week),
+                day_of_week
+            )
 
 
 def main():
@@ -26,51 +90,8 @@ def main():
     except ValueError:
         print("Cannot guess date format for: " + args.date)
         return
-    today = datetime.date.today()
-    print(get_rational_date(today, input_date))
-
-
-def get_rational_date(date_from, input_date):
-    start_of_week = date_from - datetime.timedelta(days=input_date.weekday())
-    day_difference = (input_date - start_of_week).days
-    # Rounds down, even for negatives
-    week = day_difference // 7
-    # calendar module's weeks start on monday
-    day_of_week = calendar.day_name[input_date.weekday()]
-
-    # Today
-    if input_date == date_from:
-        return "That's today!"
-    # Tomorrow
-    elif input_date + datetime.timedelta(days=-1) == date_from:
-        return "That's tommorrow!"
-    # Yesterday
-    elif input_date + datetime.timedelta(days=1) == date_from:
-        return "That was yesterday!"
-    # A day later this week
-    elif week == 0 and input_date > date_from:
-        return "This {day}".format(week_num=week, day=day_of_week)
-    # A day earlier this week
-    elif week == 0 and input_date < date_from:
-        return "It was this {day}".format(week_num=week, day=day_of_week)
-    # Some day next week
-    elif week == 1:
-        return "Next {day}".format(week_num=week, day=day_of_week)
-    # A day last week
-    elif week == -1 and input_date.weekday() > date_from.weekday():
-        return "It was this {day}".format(week_num=week, day=day_of_week)
-    # A day further forward than next week
-    elif week > 1:
-        return "{weeks} weeks {day}".format(
-            weeks=week,
-            day=day_of_week
-        )
-    # A day further behind than last week
-    else:
-        return "{weeks} Weeks ago {day}".format(
-            weeks=abs(week),
-            day=day_of_week
-        )
+    day_relator = DayRelationEvaluator(datetime.date.today())
+    print(day_relator.relation_with(input_date))
 
 
 if __name__ == "__main__":
