@@ -11,6 +11,11 @@ class DayRelationEvaluator:
 
     def __init__(self, base_date):
         self.base_date = base_date
+        if not isinstance(self.base_date, datetime.date):
+            raise TypeError(
+                """Expected instance of datetime.date for
+                   base_date but got: """ + type(base_date)
+            )
         # Default format strings
         self.same_day_fstring = "That's today!"
         self.day_after_fstring = "That's tomorrow!"
@@ -25,8 +30,9 @@ class DayRelationEvaluator:
     def relation_with(self, date):
         # A little validation
         if not isinstance(date, datetime.date):
-            return ValueError(
-                "Expected instance of datetime.date but got: " + type(date)
+            raise TypeError(
+                """Expected instance of datetime.date for date but
+                   got: """ + str(type(date))
             )
         days_into_week = datetime.timedelta(days=self.base_date.weekday())
         week_start = self.base_date - days_into_week
