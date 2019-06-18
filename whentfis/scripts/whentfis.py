@@ -79,17 +79,26 @@ class DayRelationEvaluator:
 
 def main():
     # Set up argparse
-    description = """Transforms dates in the form dd/mm/yyyy or mm/dd/yyy to
+    description = """Transforms dates in the form DMY or MDY to
                      a human readable format."""
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("date", help="Date you want to rationalise")
+    parser.add_argument(
+        "-m",
+        "--MDY",
+        help="Interpret date format as MDY",
+        action="store_true"
+    )
     args = parser.parse_args()
 
     # Attempt to parse date
     try:
         # For the rules of day, month, year ordering for dateutil.parse() see:
         # https://labix.org/python-dateutil#head-c0e81a473b647dfa787dc11e8c69557ec2c3ecd2
-        input_datetime = parse(args.date, dayfirst=True, yearfirst=False)
+        if args.MDY:
+            input_datetime = parse(args.date, dayfirst=False, yearfirst=False)
+        else:
+            input_datetime = parse(args.date, dayfirst=True, yearfirst=False)
         # We need to call date() as parse returns a datetime.datetime obj not a
         # datetime.date obj
         input_date = input_datetime.date()
