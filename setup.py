@@ -15,7 +15,7 @@ setup(
         'console_scripts':
         ['whentfis=whentfis.scripts.whentfis:main'],
     },
-    version="0.1",
+    version="1.0",
     author="Laurence Warne",
     license="MIT",
     install_requires=dependencies,
